@@ -6,7 +6,35 @@ document.addEventListener('DOMContentLoaded', () => {
     initStatCounters();
     initButtonInteractions();
     initParallaxEffect();
+    initKineticTypography();
 });
+
+// ===================================
+// KINETIC TYPOGRAPHY
+// ===================================
+function initKineticTypography() {
+    const title = document.getElementById('kineticTitle');
+    if (!title) return;
+
+    const text = title.textContent;
+    title.innerHTML = '';
+    title.style.opacity = '1';
+
+    // Split text into characters
+    [...text].forEach((char, index) => {
+        const span = document.createElement('span');
+        span.textContent = char === ' ' ? '\u00A0' : char;
+        span.className = 'kinetic-char';
+        span.style.animationDelay = `${index * 0.05}s`;
+        title.appendChild(span);
+    });
+
+    // Trigger animations after a short delay
+    setTimeout(() => {
+        const chars = title.querySelectorAll('.kinetic-char');
+        chars.forEach(char => char.classList.add('animate'));
+    }, 100);
+}
 
 // ===================================
 // CUSTOM CURSOR FOLLOWER
@@ -109,31 +137,19 @@ function animateCounter(element) {
 // BUTTON INTERACTIONS
 // ===================================
 function initButtonInteractions() {
-    const exploreBtn = document.getElementById('exploreBtn');
-    const learnBtn = document.getElementById('learnBtn');
+    const heroBtns = document.querySelectorAll('.hero-btn');
+    const exploreBtn = document.getElementById('exploreBtn'); // legacy
+    const learnBtn = document.getElementById('learnBtn');    // legacy
 
-    // Explore button - Smooth scroll effect
-    exploreBtn.addEventListener('click', () => {
-        createRippleEffect(event);
-        playSuccessAnimation();
-
-        // Optional: Add your custom action here
-        console.log('Explore button clicked!');
-    });
-
-    // Learn More button
-    learnBtn.addEventListener('click', () => {
-        createRippleEffect(event);
-        showNotification('Coming soon!');
-
-        // Optional: Add your custom action here
-        console.log('Learn More button clicked!');
-    });
-
-    // Add ripple effect to all buttons
+    // Add ripple effect to all buttons (including new hero buttons)
     const buttons = document.querySelectorAll('.btn');
     buttons.forEach(btn => {
         btn.addEventListener('click', createRippleEffect);
+    });
+
+    // Log clicks for demo
+    heroBtns.forEach(btn => {
+        btn.addEventListener('click', () => console.log(btn.textContent + ' clicked'));
     });
 }
 
@@ -157,11 +173,12 @@ function createRippleEffect(e) {
 
 function playSuccessAnimation() {
     const hero = document.querySelector('.hero-section');
-    hero.style.transform = 'scale(1.02)';
-
-    setTimeout(() => {
-        hero.style.transform = 'scale(1)';
-    }, 200);
+    if (hero) {
+        hero.style.transform = 'scale(1.02)';
+        setTimeout(() => {
+            hero.style.transform = 'scale(1)';
+        }, 200);
+    }
 }
 
 function showNotification(message) {
@@ -192,10 +209,7 @@ function showNotification(message) {
 }
 
 // ===================================
-// PARALLAX EFFECT FOR CARDS
-// ===================================
-// ===================================
-// PARALLAX EFFECT FOR CARDS
+// PARALLAX EFFECT FOR CARDS & SCENES
 // ===================================
 function initParallaxEffect() {
     const cards = document.querySelectorAll('.card');
@@ -231,7 +245,7 @@ function initParallaxEffect() {
                 smokeLayer.style.transform = `translate(${smokeX}px, ${smokeY}px)`;
             }
 
-            // Title moves most (foreground)
+            // Title moves most (foreground) - if any exist inside
             const title = scene.querySelector('.cinematic-title');
             if (title) {
                 const titleX = (mouseX - 0.5) * 60;
@@ -248,12 +262,14 @@ function initParallaxEffect() {
 document.addEventListener('keydown', (e) => {
     // Press 'E' to trigger Explore
     if (e.key === 'e' || e.key === 'E') {
-        document.getElementById('exploreBtn').click();
+        const btn = document.getElementById('exploreBtn') || document.getElementById('projectsBtn');
+        if (btn) btn.click();
     }
 
     // Press 'L' to trigger Learn More
     if (e.key === 'l' || e.key === 'L') {
-        document.getElementById('learnBtn').click();
+        const btn = document.getElementById('learnBtn') || document.getElementById('contactBtn');
+        if (btn) btn.click();
     }
 });
 
@@ -264,7 +280,7 @@ if ('performance' in window) {
     window.addEventListener('load', () => {
         setTimeout(() => {
             const perfData = performance.getEntriesByType('navigation')[0];
-            console.log('Page Load Time:', perfData.loadEventEnd - perfData.fetchStart, 'ms');
+            if (perfData) console.log('Page Load Time:', perfData.loadEventEnd - perfData.fetchStart, 'ms');
         }, 0);
     });
 }
